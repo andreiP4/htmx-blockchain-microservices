@@ -3,7 +3,7 @@
         "obj": true,
         "bin": true
     },
-    "azureFunctions.deploySubpath": "currencyService",
+    "azureFunctions.deploySubpath": "blockchainService",
     "azureFunctions.postDeployTask": "npm install (functions)",
     "azureFunctions.projectLanguage": "TypeScript",
     "azureFunctions.projectRuntime": "~4",
