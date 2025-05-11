@@ -1,4 +1,5 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { Block } from "../../block";
 
 export async function getBlockchain(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
@@ -9,7 +10,7 @@ export async function getBlockchain(request: HttpRequest, context: InvocationCon
 };
 
 app.http('getBlockchain', {
-    methods: ['GET', 'POST'],
+    methods: ['GET'],
     authLevel: 'anonymous',
     handler: getBlockchain
 });

@@ -1,4 +1,5 @@
 import { app, HttpRequest, HttpResponseInit, input, InvocationContext } from "@azure/functions";
+import { Currency } from "../../currency";
 
 const cosmosInput = input.cosmosDB({
     databaseName: process.env.CosmosDBDatabaseName,
@@ -18,5 +19,6 @@ export async function getCurrencies(request: HttpRequest, context: InvocationCon
 app.http('getCurrencies', {
     methods: ['GET', 'POST'],
     authLevel: 'anonymous',
+    extraInputs: [cosmosInput],
     handler: getCurrencies
 });
