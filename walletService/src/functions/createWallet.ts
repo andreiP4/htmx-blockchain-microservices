@@ -1,5 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext, output } from "@azure/functions";
 import { Wallet } from "../../wallet";
+import { randomUUID } from "crypto";
 
 const sendToCosmosDb = output.cosmosDB({
     connection: 'CosmosDBConnectionString',
@@ -12,7 +13,7 @@ export async function createWallet(request: HttpRequest, context: InvocationCont
     context.log(`Http function processed request for url "${request.url}"`);
     const body = request.params;
     const wallet: Wallet = {
-        id: body.id,
+        id: randomUUID(),
         userId: body.userId,
         currencyId: body.currencyId,
         balance: Number(body.balance),
