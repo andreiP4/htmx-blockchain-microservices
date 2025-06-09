@@ -26,8 +26,13 @@ export async function registerUser(request: HttpRequest, context: InvocationCont
     }
 
     try {
+        const userWithoutPassword = {
+            id: user.id,
+            username: user.username,
+            email: user.email
+        }
         context.extraOutputs.set(sendToCosmosDb, user);
-        return { status: 201, body: 'Successfully registered!' };
+        return { status: 201, body: JSON.stringify(userWithoutPassword) };
     } catch (error) {
         context.error(`Error creating wallet: ${error}`);
         return { status: 500, body: `${error}` };

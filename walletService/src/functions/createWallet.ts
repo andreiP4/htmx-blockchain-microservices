@@ -16,7 +16,7 @@ export async function createWallet(request: HttpRequest, context: InvocationCont
         id: randomUUID(),
         userId: body.userId,
         currencyId: body.currencyId,
-        balance: Number(body.balance),
+        balance: 0,
     }
 
     if (!wallet) {
@@ -25,7 +25,7 @@ export async function createWallet(request: HttpRequest, context: InvocationCont
 
     try {
         context.extraOutputs.set(sendToCosmosDb, wallet);
-        return { status: 201, body: 'Wallet created' };
+        return { status: 201, body: JSON.stringify(wallet) };
     } catch (error) {
         context.error(`Error creating wallet: ${error}`);
         return { status: 500, body: `${error}` };

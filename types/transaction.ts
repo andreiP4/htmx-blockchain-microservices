@@ -1,10 +1,9 @@
-import { Currency } from "./currency";
-import { User } from "./user";
-
 export type Transaction = {
-    sender: User;
-    receiver: User;
-    currency: Currency;
+    id: string;
+    senderId: string;
+    receiverId: string;
+    blockId?: string;
+    currencyId: string;
     amount: number;
     timestamp: Date;
 };

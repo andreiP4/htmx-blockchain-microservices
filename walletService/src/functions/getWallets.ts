@@ -4,7 +4,7 @@ import { Wallet } from "../../wallet";
 const cosmosInput = input.cosmosDB({
     databaseName: process.env.CosmosDBDatabaseName,
     containerName: process.env.CosmosDBContainerName,
-    sqlQuery: "SELECT * FROM c WHERE CONTAINS(c.currencyId, {search}) OR {search} = 'null'",
+    sqlQuery: "SELECT * FROM c WHERE c.userId = {userId} AND (CONTAINS(c.currencyId, {search}) OR {search} = 'null')",
     connection: 'CosmosDBConnectionString',
 });
 
@@ -29,7 +29,7 @@ export async function getWallets(request: HttpRequest, context: InvocationContex
 
 app.http('getWallets', {
     methods: ['GET'],
-    route: 'getWallets/{search}',
+    route: 'getWallets/{userId}/{search}',
     authLevel: 'anonymous',
     extraInputs: [cosmosInput],
     handler: getWallets

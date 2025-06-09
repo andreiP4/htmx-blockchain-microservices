@@ -1,0 +1,6 @@
+type Currency {
+    id: String!
+    name: String!
+    icon: String
+    usdValue: Float!
+}

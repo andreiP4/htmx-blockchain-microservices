@@ -1,4 +1,4 @@
-import { app, HttpRequest, HttpResponseInit, input, InvocationContext, output } from "@azure/functions";
+import { app, input, InvocationContext, output } from "@azure/functions";
 import { Wallet } from "../../wallet";
 
 const sendToCosmosDb = output.cosmosDB({
@@ -8,52 +8,57 @@ const sendToCosmosDb = output.cosmosDB({
     createIfNotExists: false
 });
 
-const cosmosInput = input.cosmosDB({
+const cosmosInputSender = input.cosmosDB({
     databaseName: process.env.CosmosDBDatabaseName,
     containerName: process.env.CosmosDBContainerName,
-    sqlQuery: 'SELECT * from c where c.id = {id}',
+    sqlQuery: 'SELECT * FROM c WHERE c.userId = {senderId} AND c.currencyId = {currencyId}',
     connection: 'CosmosDBConnectionString',
 });
 
-export async function updateWallet(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    context.log(`Http function processed request for url "${request.url}"`);
-    const response = <Wallet[]>context.extraInputs.get(cosmosInput);
+const cosmosInputReceiver = input.cosmosDB({
+    databaseName: process.env.CosmosDBDatabaseName,
+    containerName: process.env.CosmosDBContainerName,
+    sqlQuery: 'SELECT * FROM c WHERE c.userId = {receiverId} AND c.currencyId = {currencyId}',
+    connection: 'CosmosDBConnectionString',
+});
 
-    if (response.length === 0) {
-        return { status: 404, body: 'Wallet not found' };
+const queueOutput = output.storageQueue({
+    connection: 'QueueConnectionString',
+    queueName: process.env.QueueNamePending
+})
+
+export async function updateWallet(queueItem: unknown, context: InvocationContext): Promise<void> {
+    const response = JSON.parse(JSON.stringify(queueItem));
+    let senderWallet: Wallet = <Wallet>context.extraInputs.get(cosmosInputSender)[0];
+    let receiverWallet: Wallet = <Wallet>context.extraInputs.get(cosmosInputReceiver)[0];
+
+    if (!senderWallet || !receiverWallet) {
+        return;
     }
-    else {
-        const initialWallet = response[0];
-        const body = request.params;
 
-        const wallet: Wallet = {
-            id: initialWallet.id,
-            userId: initialWallet.userId,
-            currencyId: initialWallet.currencyId,
-            balance: Number(body.balance),
-        }
-
-        if (!wallet) {
-            return { status: 400, body: 'Cannot update wallet' };
-        }
-
-        try {
-            context.log('not yet');
-            context.extraOutputs.set(sendToCosmosDb, wallet);
-            context.log('yay');
-            return { status: 200, body: 'Wallet updated' };
-        } catch (error) {
-            context.error(`Error updating wallet: ${error}`);
-            return { status: 500, body: `${error}` };
-        }
+    if (response.senderId !== senderWallet.userId) {
+        return;
     }
+
+    if (response.receiverId !== receiverWallet.userId) {
+        return;
+    }
+
+    if (Number(senderWallet.balance) < Number(response.amount)) {
+        return;
+    }
+
+    senderWallet.balance = Number(senderWallet.balance) - Number(response.amount);
+    receiverWallet.balance = Number(receiverWallet.balance) + Number(response.amount);
+
+    context.extraOutputs.set(sendToCosmosDb, [senderWallet, receiverWallet]);
+    context.extraOutputs.set(queueOutput, response);
 };
 
-app.http('updateWallet', {
-    methods: ['PATCH'],
-    route: 'updateWallet/{id}',
-    extraInputs: [cosmosInput],
-    extraOutputs: [sendToCosmosDb],
-    authLevel: 'anonymous',
+app.storageQueue('updateWallet', {
+    queueName: process.env.QueueName,
+    connection: 'QueueConnectionString',
+    extraInputs: [cosmosInputSender, cosmosInputReceiver],
+    extraOutputs: [sendToCosmosDb, queueOutput],
     handler: updateWallet
-});
+})

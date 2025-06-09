@@ -1,7 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, input, InvocationContext } from "@azure/functions";
 import { User } from "../../user"
 import * as bcrypt from 'bcrypt';
-import { generateTokens } from "./generateTokens";
 
 const cosmosInput = input.cosmosDB({
     databaseName: process.env.CosmosDBDatabaseName,
@@ -29,14 +28,10 @@ export async function loginUser(request: HttpRequest, context: InvocationContext
         return { status: 401, body: 'Incorrect login' };
     }
 
-    const { accessToken, refreshToken } = generateTokens({ id: user.id, username: user.username });
-
     const userWithoutPassword = {
         id: user.id,
         username: user.username,
         email: user.email,
-        accessToken: accessToken,
-        refreshToken: refreshToken,
     }
     return {
         status: 200,
