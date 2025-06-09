@@ -10,14 +10,25 @@ const cosmosInput = input.cosmosDB({
 
 export async function getCurrencies(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
-
-    const name = request.query.get('name') || await request.text() || 'world';
-
-    return { body: `Hello, ${name}!` };
+    let currencies: Currency[] = [];
+    const response: Currency[] = <Currency[]>context.extraInputs.get(cosmosInput);
+    response.forEach((element: Currency) => {
+        currencies.push({
+            id: element.id,
+            name: element.name,
+            icon: element.icon,
+            usdValue: element.usdValue
+        });
+    });
+    return {
+        status: 200,
+        body: JSON.stringify(currencies),
+    };
 };
 
 app.http('getCurrencies', {
-    methods: ['GET', 'POST'],
+    methods: ['GET'],
+    route: 'getCurrencies/{search}',
     authLevel: 'anonymous',
     extraInputs: [cosmosInput],
     handler: getCurrencies

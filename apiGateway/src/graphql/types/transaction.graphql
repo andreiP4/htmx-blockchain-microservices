@@ -1,0 +1,9 @@
+type Transaction {
+    id: String!
+    senderId: String!
+    receiverId: String!
+    amount: Float!
+    blockId: String
+    currencyId: String!
+    timestamp: String!
+}

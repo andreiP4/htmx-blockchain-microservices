@@ -1,0 +1,7 @@
+type Mutation {
+    createTransaction(
+        receiverId: String!
+        currencyId: String!
+        amount: Float!
+    ): Transaction
+}

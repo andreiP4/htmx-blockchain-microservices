@@ -4,21 +4,15 @@ import { Wallet } from "../../wallet";
 const cosmosInput = input.cosmosDB({
     databaseName: process.env.CosmosDBDatabaseName,
     containerName: process.env.CosmosDBContainerName,
-    sqlQuery: 'SELECT * from c where c.id = {id}',
+    sqlQuery: 'SELECT * from c where c.currencyId = {currencyId} AND c.userId = {userId}',
     connection: 'CosmosDBConnectionString',
 });
 
 export async function getWallet(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
 
-    const response = context.extraInputs.get(cosmosInput)[0];
-    const wallet: Wallet = {
-        id: response.id,
-        userId: response.userId,
-        currencyId: response.currencyId,
-        balance: response.balance,
-    }
-    if (!wallet) {
+    const response: Wallet = <Wallet>context.extraInputs.get(cosmosInput)[0];
+    if (!response) {
         return {
             status: 404,
             body: 'Wallet not found',
@@ -26,14 +20,14 @@ export async function getWallet(request: HttpRequest, context: InvocationContext
     } else {
         return {
             status: 200,
-            body: JSON.stringify(wallet),
+            body: JSON.stringify(response),
         };
     }
 };
 
 app.http('getWallet', {
     methods: ['GET'],
-    route: 'getWallet/{id}',
+    route: 'getWallet/{userId}/{currencyId}',
     authLevel: 'anonymous',
     extraInputs: [cosmosInput],
     handler: getWallet

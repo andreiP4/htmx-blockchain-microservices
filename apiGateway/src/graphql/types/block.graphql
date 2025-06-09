@@ -1,0 +1,7 @@
+type Block {
+    id: String!
+    previousHash: String!
+    timestamp: String!
+    hash: String!
+    nonce: Int!
+}

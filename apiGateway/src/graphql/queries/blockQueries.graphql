@@ -1,0 +1,4 @@
+type Query {
+    getBlock(id: String!): Block
+    getBlockchain: [Block!]!
+}

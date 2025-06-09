@@ -1,11 +1,11 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { baseTemplate } from '../../views/index';
-import path from 'path';
 import { createHandler } from 'graphql-http/lib/use/http';
-import { schema } from './graphqlSchema';
+import { schema } from './graphql/graphqlSchema';
+import { createGraphQLContext } from './auth/tokenVerification';
 
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+dotenv.config();
 
 export const app = express();
 
@@ -13,11 +13,14 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(express.static('public'));
 
-app.get('/', (req, res) => {
+app.get('/', (_, res) => {
     res.send(baseTemplate(''));
 });
 
-app.all('/api', createHandler({ schema }));
+app.all('/api', createHandler({
+    schema, 
+    context: (req) => createGraphQLContext(req)
+}));
 
 const port = process.env.PORT || 8080;
 

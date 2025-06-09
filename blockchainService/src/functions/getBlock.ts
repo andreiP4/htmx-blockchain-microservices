@@ -1,5 +1,5 @@
-import { app, HttpRequest, HttpResponseInit, InvocationContext, input } from "@azure/functions";
-import { Currency } from "../../currency";
+import { app, HttpRequest, HttpResponseInit, input, InvocationContext } from "@azure/functions";
+import { Block } from "../../block";
 
 const cosmosInput = input.cosmosDB({
     databaseName: process.env.CosmosDBDatabaseName,
@@ -8,32 +8,34 @@ const cosmosInput = input.cosmosDB({
     connection: 'CosmosDBConnectionString',
 });
 
-export async function getCurrency(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function getBlock(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
+
     const response = context.extraInputs.get(cosmosInput)[0];
-    const currency: Currency = {
+    const block: Block = {
         id: response.id,
-        name: response.name,
-        icon: response.icon,
-        usdValue: response.usdValue
+        previousHash: response.previousHash,
+        timestamp: response.timestamp,
+        hash: response.hash,
+        nonce: response.nonce,
     }
-    if (!currency) {
+    if (!block) {
         return {
             status: 404,
-            body: 'Currency not found',
+            body: 'Block not found',
         };
     } else {
         return {
             status: 200,
-            body: JSON.stringify(currency),
+            body: JSON.stringify(block),
         };
     }
 };
 
-app.http('getCurrency', {
+app.http('getBlock', {
     methods: ['GET'],
-    route: 'getCurrency/{id}',
+    route: 'getBlock/{id}',
     authLevel: 'anonymous',
     extraInputs: [cosmosInput],
-    handler: getCurrency
+    handler: getBlock
 });

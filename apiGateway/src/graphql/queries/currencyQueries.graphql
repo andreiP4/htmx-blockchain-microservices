@@ -1,0 +1,4 @@
+type Query {
+    getCurrency(id: String!): Currency
+    getCurrencies(search: String): [Currency!]!
+}

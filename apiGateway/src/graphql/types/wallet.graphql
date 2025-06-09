@@ -1,0 +1,6 @@
+type Wallet {
+    id: String
+    userId: String!
+    currencyId: String!
+    balance: Float!
+}

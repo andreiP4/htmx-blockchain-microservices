@@ -1,10 +1,7 @@
-import { Transaction } from "./transaction";
-
 export type Block = {
-    index: number;
+    id: string;
     previousHash: string;
-    timestamp: string;
-    transactions: Transaction[];
+    timestamp: Date;
     hash: string;
     nonce: number;
 };

@@ -1,5 +1,5 @@
 export type Wallet = {
-    id?: string,
+    id: string,
     userId: string,
     currencyId: string,
     balance: number
