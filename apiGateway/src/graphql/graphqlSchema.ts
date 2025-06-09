@@ -12,13 +12,16 @@ import { currencyResolvers } from './resolvers/currencyResolvers';
 import { transactionResolvers } from './resolvers/transactionResolvers';
 import { walletResolvers } from './resolvers/walletResolvers';
 
+const isProduction = __dirname.includes('dist');
+const baseDir = isProduction ? __dirname : path.join(__dirname);
+
 // Load GraphQL schema files
-const typesArray = loadFilesSync(path.join(__dirname, './types/*.graphql'));
-const queriesArray = loadFilesSync(path.join(__dirname, './queries/*.graphql'));
-const mutationsArray = loadFilesSync(path.join(__dirname, './mutations/*.graphql'));
+const typesArray = loadFilesSync(path.join(baseDir, './types/*.graphql'));
+const queriesArray = loadFilesSync(path.join(baseDir, './queries/*.graphql'));
+const mutationsArray = loadFilesSync(path.join(baseDir, './mutations/*.graphql'));
 
 // Merge type definitions
-const typeDefs = mergeTypeDefs([typesArray, queriesArray, mutationsArray]);
+const typeDefs = mergeTypeDefs([...typesArray, ...queriesArray, ...mutationsArray]);
 
 // Merge all resolvers
 const resolvers = mergeResolvers([

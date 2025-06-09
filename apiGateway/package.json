@@ -4,9 +4,13 @@
   "main": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node dist/app.js",
-    "build": "npx tsc",
-    "dev": "nodemon src/index.ts"
+    "start": "node dist/apiGateway/src/index.js",
+    "build": "npx tsc && npm run copyFiles",
+    "dev": "nodemon src/index.ts",
+    "copyMutations": "shx mkdir -p ./dist/apiGateway/src/graphql && shx cp -r ./src/graphql/mutations ./dist/apiGateway/src/graphql/",
+    "copyQueries": "shx mkdir -p ./dist/apiGateway/src/graphql && shx cp -r ./src/graphql/queries ./dist/apiGateway/src/graphql/",
+    "copyTypes": "shx mkdir -p ./dist/apiGateway/src/graphql && shx cp -r ./src/graphql/types ./dist/apiGateway/src/graphql/",
+    "copyFiles": "npm run copyMutations && npm run copyQueries && npm run copyTypes"
   },
   "keywords": [],
   "author": "",
@@ -25,6 +29,7 @@
     "graphql": "^16.11.0",
     "graphql-http": "^1.22.4",
     "jsonwebtoken": "^9.0.2",
+    "shx": "^0.4.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   }
