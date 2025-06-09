@@ -74,8 +74,7 @@ export async function mineBlock(request: HttpRequest, context: InvocationContext
         const queueServiceClient = QueueServiceClient.fromConnectionString(process.env.QueueConnectionString);
         const queueClient = queueServiceClient.getQueueClient(process.env.QueueNamePending);
 
-        const pendingTransactions = await queueClient.peekMessages({ numberOfMessages: 7 });
-        let rewardTransaction: Transaction = null;
+        const pendingTransactions = await queueClient.peekMessages({ numberOfMessages: 8 });
 
         if (pendingTransactions.peekedMessageItems.length === 7) {
             for (const element of pendingTransactions.peekedMessageItems) {
@@ -86,18 +85,6 @@ export async function mineBlock(request: HttpRequest, context: InvocationContext
             }
 
             const now = new Date();
-
-            rewardTransaction = {
-                id: crypto.randomUUID(),
-                senderId: 'System',
-                receiverId: minerId,
-                currencyId: 'USD',
-                amount: 1,
-                timestamp: now,
-                blockId: newBlockId,
-            }
-
-            transactions.push(rewardTransaction);
 
             const { hash, nonce } = mineBlockWithProofOfWork(newBlockId, lastBlock.hash, now.toISOString(), transactions);
 
@@ -116,7 +103,7 @@ export async function mineBlock(request: HttpRequest, context: InvocationContext
 
         context.extraOutputs.set(sendToCosmosDb, newBlock);
         let minedTransactions: Transaction[] = [];
-        const minedTransactionsQueue = await queueClient.receiveMessages({ numberOfMessages: 7 });
+        const minedTransactionsQueue = await queueClient.receiveMessages({ numberOfMessages: 8 });
         if (minedTransactionsQueue.receivedMessageItems.length > 0) {
             for (const element of minedTransactionsQueue.receivedMessageItems) {
                 const decoded = Buffer.from(element.messageText, 'base64').toString('utf-8');
@@ -124,9 +111,6 @@ export async function mineBlock(request: HttpRequest, context: InvocationContext
                 transaction.blockId = newBlockId;
                 minedTransactions.push(transaction);
                 await queueClient.deleteMessage(element.messageId, element.popReceipt);
-            }
-            if (rewardTransaction) {
-                minedTransactions.push(rewardTransaction);
             }
         }
         context.extraOutputs.set(queueOutput, minedTransactions);
