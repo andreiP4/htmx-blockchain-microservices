@@ -17,9 +17,19 @@ export const transactionResolvers = {
             }
         },
 
+        getTransactions: async () => {
+            try {
+                const response = await axios.get(`${TRANSACTION_SERVICE_URL}/api/getTransactions`);
+                return response.data;
+            } catch (error) {
+                console.error('Error fetching transactions:', error);
+                throw new Error('Failed to fetch transactions');
+            }
+        },
+
         getTransactionsBlock: async (_: any, { blockId }: { blockId: string }) => {
             try {
-                const response = await axios.get(`${TRANSACTION_SERVICE_URL}/api/getTransactionsByBlock/${blockId}`);
+                const response = await axios.get(`${TRANSACTION_SERVICE_URL}/api/getTransactionsBlock/${blockId}`);
                 return response.data;
             } catch (error) {
                 console.error('Error fetching transactions by block:', error);
@@ -29,7 +39,7 @@ export const transactionResolvers = {
 
         getTransactionsUser: async (_: any, { userId }: { userId: string }) => {
             try {
-                const response = await axios.get(`${TRANSACTION_SERVICE_URL}/api/getTransactionsByUser/${userId}`);
+                const response = await axios.get(`${TRANSACTION_SERVICE_URL}/api/getTransactionsUser/${userId}`);
                 return response.data;
             } catch (error) {
                 console.error('Error fetching transactions by user:', error);

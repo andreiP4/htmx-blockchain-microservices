@@ -4,11 +4,11 @@ import { Transaction } from "../../transaction";
 const cosmosInput = input.cosmosDB({
     databaseName: process.env.CosmosDBDatabaseName,
     containerName: process.env.CosmosDBContainerName,
-    sqlQuery: 'SELECT * from c where c.senderId = {userId} OR c.receiverId = {userId}',
+    sqlQuery: 'SELECT * from c',
     connection: 'CosmosDBConnectionString',
 });
 
-export async function getTransactionsUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function getTransactions(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
 
     let transactions: Transaction[] = [];
@@ -30,10 +30,10 @@ export async function getTransactionsUser(request: HttpRequest, context: Invocat
     };
 };
 
-app.http('getTransactionsUser', {
+app.http('getTransactions', {
     methods: ['GET'],
-    route: 'getTransactionsUser/{userId}',
+    route: 'getTransactions',
     authLevel: 'anonymous',
     extraInputs: [cosmosInput],
-    handler: getTransactionsUser
+    handler: getTransactions
 });
