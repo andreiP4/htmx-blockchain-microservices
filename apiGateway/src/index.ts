@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
-import { baseTemplate } from '../../views/index';
+import { baseTemplate } from './views/index';
 import { execute, parse, validate } from 'graphql';
 import { schema } from './graphql/graphqlSchema';
 import { createGraphQLContext } from './auth/tokenVerification';
@@ -126,19 +126,19 @@ app.get('/', (_, res) => {
 });
 
 app.get('/blocks', (_, res) => {
-    res.send(require('../../views/blocks').blocksPage());
+    res.send(require('./views/blocks').blocksPage());
 });
 
 app.get('/transactions', (_, res) => {
-    res.send(require('../../views/transactions').transactionsPage());
+    res.send(require('./views/transactions').transactionsPage());
 });
 
 app.get('/wallet', (_, res) => {
-    res.send(require('../../views/wallet').walletPage());
+    res.send(require('./views/wallet').walletPage());
 });
 
 app.get('/login', (_, res) => {
-    res.send(require('../../views/auth').loginPage());
+    res.send(require('./views/auth').loginPage());
 });
 
 // Custom GraphQL endpoint that handles form data
@@ -186,7 +186,8 @@ app.all('/api', (req: Request, res: Response): void => {
             });
 
             res.json(result);
-        } catch (error) {            res.status(500).json({
+        } catch (error) {
+            res.status(500).json({
                 errors: [{
                     message: error instanceof Error ? error.message : 'Internal server error'
                 }]
