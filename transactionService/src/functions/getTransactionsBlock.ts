@@ -32,7 +32,7 @@ export async function getTransactionsBlock(request: HttpRequest, context: Invoca
 
 app.http('getTransactionsBlock', {
     methods: ['GET'],
-    route: 'getTransaction/{blockId}',
+    route: 'getTransactionsBlock/{blockId}',
     authLevel: 'anonymous',
     extraInputs: [cosmosInput],
     handler: getTransactionsBlock

@@ -1,10 +1,11 @@
 import axios from 'axios';
+import * as jwt from 'jsonwebtoken';
 import { generateTokens } from '../../auth/generateTokens';
 import { refreshTokens } from '../../auth/refreshTokens';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const USER_SERVICE_URL = process.env.USER_SERVICE_URL;
+const USER_SERVICE_URL = process.env.USER_SERVICE_URL || 'http://localhost:7071';
 
 export const userResolvers = {
     Query: {
@@ -30,8 +31,7 @@ export const userResolvers = {
         },
     },
 
-    Mutation: {
-        registerUser: async (_: any, { username, email, password }: {
+    Mutation: {        registerUser: async (_: any, { username, email, password }: {
             username: string;
             email: string;
             password: string;
@@ -47,15 +47,14 @@ export const userResolvers = {
                 const tokens = generateTokens({ id: user.id, username: user.username });
 
                 return {
+                    user: user,
                     accessToken: tokens.accessToken,
                     refreshToken: tokens.refreshToken
                 };
             } catch (error) {
                 throw new Error('Failed to register user');
             }
-        },
-
-        loginUser: async (_: any, { credential, password }: {
+        },        loginUser: async (_: any, { credential, password }: {
             credential: string;
             password: string;
         }) => {
@@ -69,19 +68,22 @@ export const userResolvers = {
                 const tokens = generateTokens({ id: user.id, username: user.username });
 
                 return {
+                    user: user,
                     accessToken: tokens.accessToken,
                     refreshToken: tokens.refreshToken
                 };
             } catch (error) {
                 throw new Error('Failed to login user');
             }
-        },
-
-        refreshToken: async (_: any, { refreshToken }: { refreshToken: string }) => {
+        },        refreshToken: async (_: any, { refreshToken }: { refreshToken: string }) => {
             try {
                 const tokens = refreshTokens(refreshToken);
+                
+                // Extract user info from the refresh token
+                const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET!) as { id: string; username: string };
 
                 return {
+                    user: { id: decoded.id, username: decoded.username },
                     accessToken: tokens.accessToken,
                     refreshToken: tokens.newRefreshToken
                 };

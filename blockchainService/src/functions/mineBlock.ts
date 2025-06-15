@@ -76,7 +76,7 @@ export async function mineBlock(request: HttpRequest, context: InvocationContext
 
         const pendingTransactions = await queueClient.peekMessages({ numberOfMessages: 8 });
 
-        if (pendingTransactions.peekedMessageItems.length === 7) {
+        if (pendingTransactions.peekedMessageItems.length === 8) {
             for (const element of pendingTransactions.peekedMessageItems) {
                 const decoded = Buffer.from(element.messageText, 'base64').toString('utf-8');
                 const transaction: Transaction = JSON.parse(decoded);

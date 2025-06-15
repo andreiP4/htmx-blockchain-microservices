@@ -28,13 +28,13 @@ export const blockResolvers = {
     },
 
     Mutation: {
-        mineBlock: async (_: any, { id }: { id: string }, context: any) => {
-            if (!context.user || context.user.id !== id) {
+        mineBlock: async (_: any, __: any, context: any) => {
+            if (!context.user) {
                 throw new Error('UNAUTHORIZED');
             }
 
             try {
-                const response = await axios.post(`${BLOCKCHAIN_SERVICE_URL}/api/mineBlock`, { minerId: id });
+                const response = await axios.post(`${BLOCKCHAIN_SERVICE_URL}/api/mineBlock`, { minerId: context.user.id });
                 return response.data;
             } catch (error) {
                 console.error('Error mining block:', error);

@@ -1,3 +1,3 @@
 type Mutation {
-    mineBlock(minerId: String!): Block
+    mineBlock: Block
 }

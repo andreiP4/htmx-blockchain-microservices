@@ -1,5 +1,6 @@
 type Query {
     getTransaction(id: String!): Transaction
+    getTransactions: [Transaction!]!
     getTransactionsBlock(blockId: String!): [Transaction!]!
     getTransactionsUser(userId: String!): [Transaction!]!
 }
